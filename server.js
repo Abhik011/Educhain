@@ -31,11 +31,12 @@ mongoose
     app.use("/api/marksheets", require("./src/routes/marksheet.routes"));
 
 
-    const PORT = 5500;
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`Server running on http://0.0.0.0:${PORT}`);
-      console.log(`Uploads available at http://0.0.0.0:${PORT}/uploads`);
-    });
+   const PORT = process.env.PORT || 5500;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
   })
   .catch((err) => {
     console.error("MongoDB connection failed:", err);
