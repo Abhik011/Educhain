@@ -1,0 +1,89 @@
+# =========================
+# ENV / SECRETS
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# NODE / BACKEND
+# =========================
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# BUILD OUTPUTS
+# =========================
+dist/
+build/
+coverage/
+
+# =========================
+# UPLOADS / FILES
+# =========================
+uploads/
+*.pdf
+
+# =========================
+# FLUTTER
+# =========================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+build/
+
+# =========================
+# ANDROID
+# =========================
+android/.gradle/
+android/local.properties
+android/key.properties
+android/app/debug.keystore
+
+# =========================
+# IOS / MACOS
+# =========================
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/App.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Runner/GeneratedPluginRegistrant.*
+ios/Runner.xcworkspace/
+*.xcuserstate
+*.xcuserdata
+DerivedData/
+
+# =========================
+# BLOCKCHAIN
+# =========================
+artifacts/
+cache/
+out/
+broadcast/
+private_keys/
+deployments/
+
+# =========================
+# LOGS
+# =========================
+*.log
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+*.iml
