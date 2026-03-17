@@ -154,6 +154,32 @@ ${new Date().toLocaleString()}
 );
 
 /* ===========================
+   GET ALL CERTIFICATES (COLLEGE)
+=========================== */
+router.get("/", collegeAuth, async (req, res) => {
+  try {
+    const certs = await Certificate.find({
+      collegeId: req.user._id,
+    }).sort({ createdAt: -1 });
+
+    res.json(
+      certs.map((c) => ({
+        _id: c._id,
+        certId: c.certId,
+        studentName: c.studentName,
+        course: c.course,
+        rollNumber: c.rollNumber,
+        year: c.year,
+        createdAt: c.createdAt,
+        fileUrl: c.fileUrl, // 👈 important
+        status: "verified", // you can improve later
+      }))
+    );
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch certificates" });
+  }
+}); 
+/* ===========================
    VERIFY CERTIFICATE (PUBLIC)
 =========================== */
 router.get("/verify/:value", async (req, res) => {
@@ -321,6 +347,31 @@ router.get("/my", authMiddleware, async (req, res) => {
 /* ===========================
    SECURE DOWNLOAD (STUDENT)
 =========================== */
+router.get("/clgdownload/:certId", async (req, res) => {
+
+  try {
+
+    const cert = await Certificate.findOne({
+      certId: req.params.certId
+    });
+
+    if (!cert) {
+      return res.status(404).json({ message: "Certificate not found" });
+    }
+
+    const signedUrl = await getSignedPdfUrl(cert.s3Key, 300);
+
+    res.json({ downloadUrl: signedUrl });
+
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+
+  }
+
+});
+
 router.get("/download/:certId", authMiddleware, async (req, res) => {
   const cert = await Certificate.findOne({ certId: req.params.certId });
 

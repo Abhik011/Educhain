@@ -142,6 +142,32 @@ Issued: ${new Date().toLocaleString()}
 );
 
 /* ===========================
+   GET ALL MARKSHEETS (COLLEGE)
+=========================== */
+router.get("/", authCollege, async (req, res) => {
+  try {
+    const data = await Marksheet.find({
+      collegeId: req.user._id,
+    }).sort({ createdAt: -1 });
+
+    res.json(
+      data.map((m) => ({
+        _id: m._id,
+        rollNumber: m.rollNumber,
+        studentName: m.rollNumber, // ⚠️ you don’t store name yet
+        course: m.course,
+        semester: m.semester,
+        year: m.year,
+        createdAt: m.createdAt,
+        fileUrl: m.fileUrl,
+        status: "verified",
+      }))
+    );
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch marksheets" });
+  }
+});
+/* ===========================
    AUTO IMPORT MARKSHEETS
 =========================== */
 router.post("/auto-import", authStudent, async (req, res) => {
@@ -237,6 +263,52 @@ router.get("/my", authStudent, async (req, res) => {
 /* ===========================
    DOWNLOAD MARKSHEET (SECURE)
 =========================== */
+/* ===========================
+   DOWNLOAD (COLLEGE ACCESS)
+=========================== */
+router.get("/clgdownload/:id", authCollege, async (req, res) => {
+  try {
+    const marksheet = await Marksheet.findOne({
+      rollNumber: req.params.id,
+      collegeId: req.user._id,
+    });
+
+    if (!marksheet) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    const signedUrl = await getSignedPdfUrl(marksheet.s3Key, 300);
+
+    res.json({ downloadUrl: signedUrl });
+  } catch (err) {
+    res.status(500).json({ message: "Download failed" });
+  }
+});
+
+router.get("/marksheet-download/:id", async (req, res) => {
+
+  try {
+
+    const marksheet = await Marksheet.findOne({
+      marksheetId: req.params.id
+    });
+
+    if (!marksheet) {
+      return res.status(404).json({ message: "Marksheet not found" });
+    }
+
+    const signedUrl = await getSignedPdfUrl(marksheet.s3Key, 300);
+
+    res.json({ downloadUrl: signedUrl });
+
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+
+  }
+
+});
 router.get("/download/:id", authStudent, async (req, res) => {
   try {
     const marksheet = await Marksheet.findById(req.params.id);

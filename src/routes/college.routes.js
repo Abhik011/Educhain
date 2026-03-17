@@ -3,8 +3,9 @@ const router = express.Router();
 const College = require("../models/College");
 const collageauthMiddleware = require("../middleware/collegeauth.middleware");
 const Certificate = require("../models/Certificate");
-
+const Marksheet = require("../models/Marksheet");
 // 🔐 Protected college dashboard
+
 router.get("/dashboard", collageauthMiddleware, async (req, res) => {
   try {
     if (req.user.role !== "college") {
@@ -13,14 +14,20 @@ router.get("/dashboard", collageauthMiddleware, async (req, res) => {
 
     const collegeId = req.user._id;
 
-    const totalCertificates = await Certificate.countDocuments({
-      collegeId,
-    });
+    const [
+      totalCertificates,
+      verifiedCertificates,
+      totalMarksheets,
+    ] = await Promise.all([
+      Certificate.countDocuments({ collegeId }),
 
-    const verifiedCertificates = await Certificate.countDocuments({
-      collegeId,
-      blockchainTx: { $exists: true, $ne: null },
-    });
+      Certificate.countDocuments({
+        collegeId,
+        blockchainTx: { $exists: true, $ne: null },
+      }),
+
+      Marksheet.countDocuments({ collegeId }), // ✅ THIS FIXES YOUR ISSUE
+    ]);
 
     const pendingCertificates =
       totalCertificates - verifiedCertificates;
@@ -31,6 +38,7 @@ router.get("/dashboard", collageauthMiddleware, async (req, res) => {
         totalCertificates,
         verifiedCertificates,
         pendingCertificates,
+        totalMarksheets, // ✅ REQUIRED FOR FRONTEND
       },
     });
   } catch (err) {
